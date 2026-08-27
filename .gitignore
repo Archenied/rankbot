@@ -13,3 +13,7 @@ node_modules/
 .env
 *.log
 crash.txt
+
+# A readable copy of the workflow, for pasting into the GitHub website.
+# Not part of the project itself.
+rank-workflow-COPY-PASTE-ME.txt

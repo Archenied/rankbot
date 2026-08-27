@@ -28,7 +28,6 @@ Everything is set up in one window: **RankBotSetup.exe**.
 | `watchlist.json` | Your player list. The .exe writes this too. |
 | `nevertouch.json` | Players RankBot must never change. The .exe writes this too. |
 | `apikey.txt` / `cookie.txt` | Your login. **Never upload these.** They go to GitHub as Secrets instead. |
-| `test/fake-run.js` | Offline test. No login, no real group touched. |
 | `upload-to-github/` | Safe-to-upload copy, built by the **Prepare GitHub files** button. |
 
 ---
@@ -137,14 +136,9 @@ After that it runs on its own every 5 minutes, free, forever.
 - Groups bigger than 2000 members need `maxMemberPagesToScan` raised in
   `config.json`. RankBot always says in the log when it had to stop early.
 
-## Changing the code safely
-
-```bash
-node test/fake-run.js
-```
-
-It pretends to be Roblox — no login, no internet, your real group untouched. It
-runs the same situation four ways (API key, cookie, broken-key-so-use-cookie, and
-read-only-key-so-use-cookie) and must print **PASS** at the bottom.
+## Changing the code
 
 If you edit `RankBotSetup.cs`, run `build.bat` to rebuild the .exe.
+
+Before changing `src/rankbot.js` for real, tick **Practice mode** and press
+**Save and run now**. It reports what it would do without touching your group.
