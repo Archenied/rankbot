@@ -22,6 +22,6 @@ if not exist apikey.txt (
 
 set /p ROBLOX_API_KEY=<apikey.txt
 
-node src\rankbot.js
+node rankbot.js
 echo.
 pause

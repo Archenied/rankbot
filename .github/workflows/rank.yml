@@ -14,7 +14,7 @@ on:
       - "watchlist.json"
       - "nevertouch.json"
       - "config.json"
-      - "src/**"
+      - "rankbot.js"
 
   # Adds a "Run workflow" button so you can start it by hand any time.
   workflow_dispatch:
@@ -45,7 +45,7 @@ jobs:
           failed=0
           for pass in 1 2 3 4 5; do
             echo "==================== pass $pass of 5 ===================="
-            node src/rankbot.js || failed=1
+            node rankbot.js || failed=1
             if [ "$pass" -lt 5 ]; then
               sleep 55
             fi

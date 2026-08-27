@@ -1131,7 +1131,7 @@ public class SetupForm : Form
     {
         if (!SaveEverything()) return;
 
-        string script = P(Path.Combine("src", "rankbot.js"));
+        string script = P("rankbot.js");
         if (!File.Exists(script))
         {
             MessageBox.Show(this, "src\\rankbot.js is missing. Keep RankBotSetup.exe in the RankBot folder.",

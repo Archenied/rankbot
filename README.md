@@ -23,7 +23,7 @@ Everything is set up in one window: **RankBotSetup.exe**.
 | --- | --- |
 | `RankBotSetup.exe` | The setup window. Start here. |
 | `build.bat` | Rebuilds the .exe if you change `RankBotSetup.cs`. |
-| `src/rankbot.js` | The bot itself. GitHub runs this. |
+| `rankbot.js` | The bot itself. GitHub runs this. |
 | `config.json` | Your settings. The .exe writes this — you don't have to. |
 | `watchlist.json` | Your player list. The .exe writes this too. |
 | `nevertouch.json` | Players RankBot must never change. The .exe writes this too. |
@@ -140,5 +140,5 @@ After that it runs on its own every 5 minutes, free, forever.
 
 If you edit `RankBotSetup.cs`, run `build.bat` to rebuild the .exe.
 
-Before changing `src/rankbot.js` for real, tick **Practice mode** and press
+Before changing `rankbot.js` for real, tick **Practice mode** and press
 **Save and run now**. It reports what it would do without touching your group.
