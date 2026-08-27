@@ -1,0 +1,15 @@
+# Secrets - these must NEVER go to GitHub.
+# WARNING: this file only protects you when you use git commands. Dragging
+# files into the GitHub WEBSITE ignores it. Use the "Prepare GitHub files"
+# button in RankBotSetup.exe instead - it hands you a folder with the secrets
+# already left out.
+apikey.txt
+cookie.txt
+
+# The safe-to-upload copy the button builds. No need to send this up itself.
+upload-to-github/
+
+node_modules/
+.env
+*.log
+crash.txt

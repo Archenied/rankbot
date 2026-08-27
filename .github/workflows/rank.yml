@@ -1,0 +1,53 @@
+name: RankBot
+
+on:
+  # GitHub's timer will not go faster than every 5 minutes - that is their rule,
+  # not ours. So each run checks 5 times, once a minute, which works out the
+  # same as checking every minute.
+  schedule:
+    - cron: "*/5 * * * *"
+
+  # Runs right away when you edit your settings on GitHub.
+  push:
+    branches: [main]
+    paths:
+      - "watchlist.json"
+      - "nevertouch.json"
+      - "config.json"
+      - "src/**"
+
+  # Adds a "Run workflow" button so you can start it by hand any time.
+  workflow_dispatch:
+
+# Never let two runs rank people at the same time. If a new run starts while an
+# old one is still going, the old one is dropped - safe, because every pass
+# re-checks the group from scratch.
+concurrency:
+  group: rankbot
+  cancel-in-progress: true
+
+jobs:
+  rank:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Rank players - 5 passes, one a minute
+        env:
+          ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
+          ROBLOX_COOKIE: ${{ secrets.ROBLOX_COOKIE }}
+        run: |
+          failed=0
+          for pass in 1 2 3 4 5; do
+            echo "==================== pass $pass of 5 ===================="
+            node src/rankbot.js || failed=1
+            if [ "$pass" -lt 5 ]; then
+              sleep 55
+            fi
+          done
+          exit $failed

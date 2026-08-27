@@ -1,0 +1,12 @@
+{
+  "active": true,
+  "groupId": 251905451,
+  "autoRankNewMembers": {
+    "enabled": true,
+    "fromRank": 1,
+    "toRank": 9
+  },
+  "watchlistEnabled": true,
+  "maxMemberPagesToScan": 20,
+  "dryRun": false
+}
