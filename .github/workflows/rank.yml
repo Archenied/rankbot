@@ -29,7 +29,10 @@ concurrency:
 jobs:
   rank:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # GitHub's hard ceiling for one job is 6 hours. Staying just under it means
+    # a single run keeps watching the group for most of a day, instead of
+    # finishing in 5 minutes and hoping the timer fires again soon.
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
 
@@ -37,17 +40,37 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Rank players - 5 passes, one a minute
+      - name: Watch the group - one check a minute for 5.5 hours
         env:
           ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
           ROBLOX_COOKIE: ${{ secrets.ROBLOX_COOKIE }}
         run: |
-          failed=0
-          for pass in 1 2 3 4 5; do
-            echo "==================== pass $pass of 5 ===================="
-            node rankbot.js || failed=1
-            if [ "$pass" -lt 5 ]; then
-              sleep 55
-            fi
+          # 300 checks at roughly 65s each is about 5h25m, comfortably inside
+          # the 350 minute timeout so the next step still gets to run.
+          PASSES=300
+          for pass in $(seq 1 $PASSES); do
+            echo "=========== check $pass of $PASSES  ($(date -u +%H:%M:%S) UTC) ==========="
+            # One bad check must never end the watch - it just tries again in
+            # a minute. Real problems still show up in this log.
+            node rankbot.js || echo ">>> that check failed, carrying on"
+            sleep 60
           done
-          exit $failed
+
+      # Ask GitHub to start the next run as this one finishes, so the watch
+      # carries on without waiting for their unreliable timer.
+      - name: Start the next watch
+        if: always()
+        env:
+          TOKEN: ${{ secrets.SELF_TRIGGER_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "No SELF_TRIGGER_TOKEN secret set, so this watch just ends here."
+            echo "Add one to make RankBot restart itself and run truly non-stop."
+            exit 0
+          fi
+          curl -sS -X POST \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/rank.yml/dispatches" \
+            -d '{"ref":"main"}'
+          echo "next watch requested"

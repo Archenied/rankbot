@@ -554,8 +554,27 @@ async function autoRankNewMembers(backend, roles, claimed, guarded) {
     console.log('        Raise "maxMemberPagesToScan" if your group is bigger than this.');
   }
 
+  // Roblox's "list the players on rank X" endpoint cannot be trusted: for some
+  // groups it hands back members of OTHER ranks too, including people ranked
+  // far above the joining rank. Ranking straight from that list would try to
+  // demote owners and staff, and only Roblox's own rank rule would stop it.
+  // So every single player is checked again before being touched.
+  let wrongRank = 0;
   for (const member of waiting) {
-    await rankTo(backend, member, toRole, `user ${member.userId}`);
+    const confirmed = await backend.getMember(member.userId);
+    if (confirmed === undefined) continue; // lookup failed, already reported
+
+    if (confirmed === null || confirmed.roleId !== fromRole.id) {
+      wrongRank++;
+      continue;
+    }
+
+    await rankTo(backend, confirmed, toRole, `user ${member.userId}`);
+  }
+
+  if (wrongRank > 0) {
+    console.log(`  (${wrongRank} skipped - Roblox listed them under ${fromRole.name}`);
+    console.log('   but they are actually on a different rank)');
   }
 }
 
