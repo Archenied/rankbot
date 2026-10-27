@@ -48,11 +48,30 @@ jobs:
           # 300 checks at roughly 65s each is about 5h25m, comfortably inside
           # the 350 minute timeout so the next step still gets to run.
           PASSES=300
+          # A dead login used to be invisible: every check failed, the run still
+          # went green, and nobody noticed for two months. Now a run that keeps
+          # failing stops and goes RED, so GitHub emails you about it.
+          GIVE_UP_AFTER=5
+          failures=0
           for pass in $(seq 1 $PASSES); do
             echo "=========== check $pass of $PASSES  ($(date -u +%H:%M:%S) UTC) ==========="
-            # One bad check must never end the watch - it just tries again in
-            # a minute. Real problems still show up in this log.
-            node rankbot.js || echo ">>> that check failed, carrying on"
+            if node rankbot.js; then
+              failures=0
+            else
+              failures=$((failures + 1))
+              echo ">>> that check failed ($failures in a row)"
+              if [ "$failures" -ge "$GIVE_UP_AFTER" ]; then
+                echo ""
+                echo "########################################################"
+                echo "# $GIVE_UP_AFTER checks in a row failed. Stopping."
+                echo "# Almost always this means the login stopped working."
+                echo "# Fix: put a working Open Cloud API key in the"
+                echo "# ROBLOX_API_KEY secret. API keys never expire;"
+                echo "# cookies die whenever that account logs out."
+                echo "########################################################"
+                exit 1
+              fi
+            fi
             sleep 60
           done
 
