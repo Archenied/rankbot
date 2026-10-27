@@ -3,8 +3,8 @@
   "groupId": 251905451,
   "autoRankNewMembers": {
     "enabled": true,
-    "fromRank": 1,
-    "toRank": 9
+    "fromRank": "In request",
+    "toRank": "Member"
   },
   "watchlistEnabled": true,
   "maxMemberPagesToScan": 20,

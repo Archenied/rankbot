@@ -147,6 +147,25 @@ function openCloudBackend(groupId, apiKey) {
         }
         pageToken = result.body.nextPageToken || '';
       } while (pageToken);
+
+      // Open Cloud leaves the group's default joining role out of this list
+      // (the one new players land in, which Roblox gives a huge id such as
+      // 12884901889). It still reports that role for members, so without this
+      // RankBot can see people sitting on the joining rank but cannot name it.
+      // The old public roles endpoint does list it and needs no login.
+      const extra = await request(`https://groups.roblox.com/v1/groups/${groupId}/roles`);
+      if (extra.ok && Array.isArray(extra.body.roles)) {
+        for (const r of extra.body.roles) {
+          if (roles.some((known) => known.id === String(r.id))) continue;
+          roles.push({
+            id: String(r.id),
+            name: r.name,
+            rank: Number(r.rank),
+            ref: `groups/${groupId}/roles/${r.id}`,
+          });
+        }
+      }
+
       return roles;
     },
 
